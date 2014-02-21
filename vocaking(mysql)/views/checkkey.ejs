@@ -1,0 +1,16 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <meta charset="utf-8">
+    <link rel='stylesheet' href='/stylesheets/style.css' />
+  </head>
+  <body>
+   	<form action='/checkkey' method='post' enctype="multipart/form-data">
+
+   		server 인증키 : <input type='text' name='serverkey' value=<%=title%>><br>
+      user 인증키 : <input type='text' name='userkey'><br>
+      <input type='submit' value='비밀 번호 변경'>   	
+   	</form>
+
+   </body>
+</html>
