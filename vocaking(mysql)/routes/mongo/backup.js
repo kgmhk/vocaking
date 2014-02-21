@@ -24,75 +24,84 @@ exports.backupform = function(req,res){
 exports.backup = function(req, res){
 	if(!req.session.email){
 		res.json({'result':false , 'result_msg' : 'session fail'});
+		return;
 	}else{
-		var email = req.session.email;
-		var list = req.body.mylist;
-		var saveword = req.body.word;
-		var savemean = req.body.mean
-		console.log('email' , email);
-		console.log('list' ,saveword);
+		try{
 
-	//var backup1 = new backupmodel();
-/*
-
-	backupmodel.update({email : email}, {$addToSet :{list: list, word: word}}, function(err, update){
-					if(err) console.log('update err', err);
-					console.log('update', update);
-
-	});
-*/
-	async.waterfall([
+			var email = req.session.email;
+			var list = req.body.mylist;
+			var saveword = req.body.word;
+			var savemean = req.body.mean
+			console.log('email' , email);
+			console.log('list' ,saveword);
+		}catch(e){
+			console.log('-----------------backup param Err-------------------');
+			res.json({result : true, result_msg : 'There is no param'});
+			return;
+		}
+		async.waterfall([
 			function(callback){
-			backupmodel.find({email:email, list:list},function(err, result){ //저장된 사용자 인가 찾는다.
-				if(err) console.log(err);
-				//console.log('find count', count);
-				console.log('result123 : ', result);
-				if(result.length == 0){            // 저장된 사용자가 아닐 경우 새로 저장
-					var b = new backupmodel();
-					console.log('if : ');
-					b.email = email;
-					b.list = list;
-					b.word = saveword;
-					b.mean = savemean;
-					console.log('b', b);
-					b.save(function(err, result, count){
-						if(err){
-							console.log('save err : ', err);
-							res.json({'result' :false, 'result_msg':err});
+				try{
+
+					backupmodel.find({email:email, list:list},function(err, result){ //저장된 사용자 인가 찾는다.
+						if(err) console.log(err);
+						//console.log('find count', count);
+						console.log('result123 : ', result);
+						if(result.length == 0){            // 저장된 사용자가 아닐 경우 새로 저장
+							var b = new backupmodel();
+							console.log('if : ');
+							b.email = email;
+							b.list = list;
+							b.word = saveword;
+							b.mean = savemean;
+							console.log('b', b);
+							b.save(function(err, result, count){
+								if(err){
+									console.log('save err : ', err);
+									res.json({'result' :false, 'result_msg':err});
+								}
+								console.log('todo :', result, 'count :', count);
+								mongoose.disconnect(function(err) {
+		  							if (err) throw err;
+		  								console.log('disconnected');
+								});
+								res.json({'result':true, 'result_msg' : 'backup success'});
+							}); // backup.save
+							//console.log('1');
 						}
-						console.log('todo :', result, 'count :', count);
-						mongoose.disconnect(function(err) {
-  							if (err) throw err;
-  								console.log('disconnected');
-						});
-						res.json({'result':true, 'result_msg' : 'backup success'});
-					}); // backup.save
-					//console.log('1');
+						else{				
+							callback(null , result)
+							console.log('2',email,saveword);
+						}
+					//res.json({'result':result});
+					});
+				}catch(e){
+					console.log('-----------backup waterfall-1 err-----------------');
+					res.json({result : false, result_msg : e});
+					return;
 				}
-				else{				
-					callback(null , result)
-					console.log('2',email,saveword);
-				}
-			//res.json({'result':result});
-		
-			});
 		}
 		], function(err, result){
-			console.log('waterfall : ', result[0]._id);
-			backupmodel.update({_id : result[0]._id}, {$pushAll :{word: saveword, mean : savemean}}, { upsert : true }, function(err, update){
+			try{
+
+				console.log('waterfall : ', result[0]._id);
+				backupmodel.update({_id : result[0]._id}, {$pushAll :{word: saveword, mean : savemean}}, { upsert : true }, function(err, update){
 						if(err){
 							console.log('update err', err);
 							res.json({'result' : false, 'result_msg' : err})
+							return;
 						} 
 						console.log('update', update);
-
 						console.log('result[0] :', result[0]);
 						res.json({'result': true, 'result_msg' : 'backup success'});
-
+						return;
 				});
-
+			}catch(e){
+				console.log('--------backup waterfall-2 err-----------------');
+				res.json({result : false , result_msg : e});
+				return;
+			}
 		});
-	
 	}
 
 

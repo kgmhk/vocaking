@@ -57,7 +57,7 @@ exports.password = function(req, res){
 	
 	var email = req.body.email;
 	var rnum = Math.floor(Math.random() * 1000000);
-	req.session.email = req.body.email;
+	//req.session.email = req.body.email;
 	db.getConnection(function(err, connection){ //저장 된 회원인가 확인
 		connection.query('select count(*) cnt from member where email=?',[email], function(err, result){
 			if(err)
@@ -75,22 +75,27 @@ exports.password = function(req, res){
 				   cc:      "else <gihyunkwak@naver.com>", // 참조
 				   subject: "Hello VocaKing"
 				}, function(err, message) { 
-					console.log(err || message);
+					//console.log(err || message);
 					if(err){
+						console.log('email send err', err);
 						res.json({'result': false, 'result_msg':err});
+						return;
 					} 
 				});
-				Field.setvalue(rnum);
+				//Field.setvalue(rnum);
+				console.log('rnum', rnum);
 				res.json({result: true, key : rnum});
+				return;
 				//res.json({'result': true, 'key': rnum});
 			}
 			else{
+				console.log('password invailed user');
 				res.json({'result': false, 'result_msg': 'invailed user'});
+				return;
 			}
 		}); //query
 	}); // pool
-	// send the message and get a callback with an error or details of the message that was sent
-	
+			// send the message and get a callback with an error or details of the message that was sent
 };
 
 
@@ -117,7 +122,7 @@ exports.checkkey = function(req, res){
 
 // 비밀번호 변경
 exports.pwchange = function(req, res){
-	var email = req.session.email;
+	var email = req.body.email;
 	var pw = req.body.pw;
 	console.log(email);
 	db.getConnection(function(err, connection){

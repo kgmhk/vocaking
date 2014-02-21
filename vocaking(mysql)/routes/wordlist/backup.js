@@ -9,8 +9,10 @@ var util = require('util');
 */
 
 function backupquery(email, list, word, mean, callback){
+	var a;
+	try{
+
 		db.getConnection(function(err, connection){ // 사용자의 데이터 저장 query
-			var a;
 			var i = 0;
 			console.log('word ::::', word);
 			connection.query('select count(*) cnt from member where email=?',[email],function(err, result){ // 무결성 검사
@@ -45,6 +47,11 @@ function backupquery(email, list, word, mean, callback){
 				}
 			}); // 등록 된 유저 확인 query
 		});// pool
+	}catch(e){
+		console.log('backupquery function err');
+		a = ({result : false, result_msg : e});
+		return callback(null, a);
+	}
 }
 
 exports.backupform = function(req,res){
@@ -54,12 +61,20 @@ exports.backup = function(req, res){
 	if(!req.session.email){
 		res.json({'result':false , 'result_msg' : 'session fail'});
 	}else{
-		var list = req.body.mylist;
-		var email = req.session.email;
-		var wordarray = req.body.word;
-		var meanarray = req.body.mean;
-		var result;
-		console.log(wordarray[0]);
+		try{
+
+			var list = req.body.mylist;
+			var email = req.session.email;
+			var wordarray = req.body.word;
+			var meanarray = req.body.mean;
+			var result;
+			console.log(wordarray[0]);
+		}
+		catch(e){
+			console.log('----------backup param err--------------');
+			res.json({result : true, result_msg : 'There is no param'});
+			return;
+		}
 		try{
 
 		 	async.waterfall([
