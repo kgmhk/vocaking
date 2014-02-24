@@ -58,7 +58,7 @@ exports.snslogin = function(req, res){
 		console.log('token',req.body.facebook_token);
 		console.log('id',req.body.id);
 		console.log('name',req.body.name);
-		if(req.session.email == undefined){
+		if(!req.session.email){
 
 			try{
 				req.session.name = undefined;
@@ -112,6 +112,7 @@ exports.snslogin = function(req, res){
 						
 						console.log('param input');
 						}catch(e){
+							console.log('-----waterfall 2 err--------- :', e);
 							res.json({result: false , result_msg: 'param Err' + e});
 							return;
 						}
@@ -174,11 +175,13 @@ exports.snslogin = function(req, res){
 						}
 					}
 					else{
+						console.log('not match client id & facebook id');
 						res.json({'result': false, 'result_msg': '잘못된 접근'});
 						return;
 					}
 				});  
 		}else{
+			console.log('session ok');
 			//res.json({'result':true , 'name' : req.session.name , 'image': 'http://vocaking.gihyunkwak.cloulu.com/uploads/memberimage/' + req.session.image ,'result_msg' : 'Welcom VocaKing'});
 					res.json({'result':true , 'name' : req.session.name , 'image': req.session.image ,'result_msg' : 'Welcom VocaKing'});
 					return;

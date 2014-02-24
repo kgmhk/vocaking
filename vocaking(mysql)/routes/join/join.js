@@ -16,8 +16,6 @@ exports.joinform = function(req,res){
 //		insert into memupdate set email = new.email , up_ver = new.cur_ver;
 //	end;
 //	|
-//
-//
 */
 
 exports.join = function(req, res){
@@ -41,6 +39,7 @@ exports.join = function(req, res){
 		console.log('--------params err-----------');
 		return;
 	}
+	
 
 	async.waterfall([
 		function(callback){
@@ -118,7 +117,4 @@ exports.join = function(req, res){
 		}
 	}// function(err, result)
 	);//async
-
 };
-
-

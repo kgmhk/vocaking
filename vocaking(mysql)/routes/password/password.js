@@ -54,48 +54,56 @@ exports.passwordform = function(req, res){
 };
 
 exports.password = function(req, res){
-	
-	var email = req.body.email;
-	var rnum = Math.floor(Math.random() * 1000000);
-	//req.session.email = req.body.email;
-	db.getConnection(function(err, connection){ //저장 된 회원인가 확인
-		connection.query('select count(*) cnt from member where email=?',[email], function(err, result){
-			if(err)
-			{
-				console.log('select err : ', err);
-				res.json({'result':false, 'result_msg': err});
-				return;
-				
-			} 
-			if(result[0].cnt == 1){ // 저장된 회원의 이메일일 경우
-				server.send({
-				   text:    "비밀번호 찾기 인증키 :" + rnum, 
-				   from:    "gihyun <gihyunkwak@gmail.com>", 
-				   to:      "hong" + "<"+email+">", // another <another@gmail.com> 여러명 보낼 때
-				   cc:      "else <gihyunkwak@naver.com>", // 참조
-				   subject: "Hello VocaKing"
-				}, function(err, message) { 
-					//console.log(err || message);
-					if(err){
-						console.log('email send err', err);
-						res.json({'result': false, 'result_msg':err});
-						return;
-					} 
-				});
-				//Field.setvalue(rnum);
-				console.log('rnum', rnum);
-				res.json({result: true, key : rnum});
-				return;
-				//res.json({'result': true, 'key': rnum});
-			}
-			else{
-				console.log('password invailed user');
-				res.json({'result': false, 'result_msg': 'invailed user'});
-				return;
-			}
-		}); //query
-	}); // pool
-			// send the message and get a callback with an error or details of the message that was sent
+	try{
+
+		var email = req.body.email;
+		var rnum = Math.floor(Math.random() * 1000000);
+		console.log('email : ', email);
+		//req.session.email = req.body.email;
+		db.getConnection(function(err, connection){ //저장 된 회원인가 확인
+			connection.query('select count(*) cnt, name from member where email=?',[email], function(err, result){
+				if(err)
+				{
+					console.log('select err : ', err);
+					res.json({'result':false, 'result_msg': err});
+					return;
+					
+				} 
+				if(result[0].cnt == 1){ // 저장된 회원의 이메일일 경우
+					server.send({
+					   text:    "비밀번호 찾기 인증키 :" + rnum, 
+					   from:    "gihyun <gihyunkwak@gmail.com>", 
+					   to:      result[0].name + "<"+email+">", // another <another@gmail.com> 여러명 보낼 때
+					   cc:      "else <gihyunkwak@naver.com>", // 참조
+					   subject: "Hello VocaKing"
+					}, function(err, message) { 
+						//console.log(err || message);
+						if(err){
+							console.log('email send err', err);
+							res.json({'result': false, 'result_msg':err});
+							return;
+						} 
+					});
+					//Field.setvalue(rnum);
+					console.log('rnum', rnum);
+					res.json({result: true, key : rnum});
+					return;
+					//res.json({'result': true, 'key': rnum});
+				}
+				else{
+					console.log('password invailed user');
+					res.json({'result': false, 'result_msg': 'invailed user'});
+					return;
+				}
+			}); //query
+			connection.release();
+		}); // pool
+				// send the message and get a callback with an error or details of the message that was sent
+	}catch(e){
+		console.log('---------------password key err------------------');
+		res.json({result: false, result_msg : e});
+		return;
+	}
 };
 
 
@@ -134,13 +142,18 @@ exports.pwchange = function(req, res){
 				return;
 			}
 			if(result.affectedRows == 1){
+				console.log('pwchange success');
 				res.json({'result':true, 'result_msg': 'pwchange success'});
+				return;
 			}
 			else{
+				console.log('pwchange fail');
 				res.json({'result':false, 'result_msg': 'pwchange fail'});
+				return;
 			}
 
 		}); //query
+		connection.release();
 	});//pool
 
 	//res.json({'result': false});

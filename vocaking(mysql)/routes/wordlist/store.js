@@ -42,18 +42,20 @@ exports.store = function(req, res){
 										async.each(arg1, function(item, callback){
 											console.log('item', item);
 											db.getConnection(function(err, connection){
-												connection.query('select word from backup where list=? and email=?',[item.list, email], function(err, results){
+												connection.query('select word, mean from backup where list=? and email=?',[item.list, email], function(err, results){
 													if(err) {
 														console('err', err);
 													}
 													else{
 														console.log('query results :', results)
 														var words = [];
+														var means = [];
 														for(var i=0; i<results.length; i++){
 															console.log('results.word', results[i].word);
 											 				words[i] = results[i].word;
+											 				means[i] = results[i].mean;
 														};// for
-														arr[a] = {'list':item.list, words:words};
+														arr[a] = {'list':item.list, words:words, means : means};
 														a++;
 														callback();
 													}// else

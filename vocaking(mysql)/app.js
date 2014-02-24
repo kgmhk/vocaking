@@ -13,6 +13,8 @@ var app = express();
 
 //회원가입 관련
 var join = require('./routes/join/join');
+//회원 사진 변경
+var change_photo = require('./routes/member/change_photo');
 
 //로그인 관련
 var login = require('./routes/login/login');
@@ -82,13 +84,14 @@ app.post('/pwchange', password.pwchange);
 app.get('/login', login.loginform);
 app.post('/login', login.login);
 //로그아웃
+app.get('/logout',logout.logout);
 app.post('/logout', logout.logout);
 //sns 회원가입
 app.post('/snslogin', login.snslogin);
 //app.post('/snslogin1', login.login_facebook);
 
-
-
+//멤버 사진 변경
+app.post('/change_photo', change_photo.change_photo);
 
 //회원가입
 app.get('/join', join.joinform);
