@@ -1,4 +1,4 @@
-vocaking-server-
+vocaking_server
 ================
 
 T-academy project ( VocaKing )
